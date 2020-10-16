@@ -2,10 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+
+    <!-- nuget setting -->
+    <PackageId>LiteDbFlex</PackageId>
+    <Version>1.0.1</Version>
+    <Authors>seokwon hong</Authors>
+    <Company>open society</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>LiteDb Extension</Description>
+    <Copyright>MIT</Copyright>
+    <PackageProjectUrl>https://github.com/nameofSEOKWONHONG/LiteDbFlex.git</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="LiteDB" Version="5.0.9" />
   </ItemGroup>
+
 
 </Project>

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LiteDbFlex", "LiteDbFlex\LiteDbFlex.csproj", "{DF30CBB5-FC3A-429C-8C5F-F091E7AE7E80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteDbFlex.test", "LiteDbFlex.test\LiteDbFlex.test.csproj", "{EE35FBCA-7C26-4585-A85E-B07EF365C2BD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF30CBB5-FC3A-429C-8C5F-F091E7AE7E80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF30CBB5-FC3A-429C-8C5F-F091E7AE7E80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF30CBB5-FC3A-429C-8C5F-F091E7AE7E80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF30CBB5-FC3A-429C-8C5F-F091E7AE7E80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE35FBCA-7C26-4585-A85E-B07EF365C2BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE35FBCA-7C26-4585-A85E-B07EF365C2BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE35FBCA-7C26-4585-A85E-B07EF365C2BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE35FBCA-7C26-4585-A85E-B07EF365C2BD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {795A17DE-454F-4892-BA8B-3C7BBBA725D5}
+	EndGlobalSection
+EndGlobal

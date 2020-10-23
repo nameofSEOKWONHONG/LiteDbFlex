@@ -13,7 +13,9 @@ namespace LiteDbFlex.test
         {
             using(var builder = new LitedbFlexBuilder<Customer>())
             {
+                builder.DropIndex("Name");
                 var result = builder.BeginTrans()
+                .EnsureIndex(m => m.Id, true)
                 .Insert(new Customer() {
                     Name = "seokwon hong",
                     Phones = new string[] { "8000-0000", "9000-0000" },
@@ -31,11 +33,11 @@ namespace LiteDbFlex.test
         public void Test2() {
             using(var builder = new LitedbFlexBuilder<Customer>())
             {
-                var result = builder.EnsureIndex(m => m.Name, true)
+                var result = builder
                 .Gets()
                 .GetResult<IEnumerable<Customer>>();
 
-                Assert.Greater(result.Count(), 0);
+                Assert.Greater(result.Count(), 1);
             }
         }
 
@@ -43,7 +45,7 @@ namespace LiteDbFlex.test
         public void Test3() {
             using(var builder = new LitedbFlexBuilder<Customer>())
             {
-                var result = builder.EnsureIndex(m => m.Name, true)
+                var result = builder
                 .Get(m => m.Name == "seokwon hong")
                 .GetResult<Customer>();
 
@@ -54,11 +56,11 @@ namespace LiteDbFlex.test
         [Test]
         public void Test4() {
             using(var builder = new LitedbFlexBuilder<Customer>()) {
-                var result = builder.EnsureIndex(m => m.Name, true)
-                .Gets(null, 1, 1)
+                var result = builder
+                .Gets(null, 0, 1)
                 .GetResult<IEnumerable<Customer>>();
 
-                Assert.AreEqual(result.ToList()[0].Id, 2);
+                Assert.AreEqual(result.ToList()[0].Id, 1);
             }
         }
     }

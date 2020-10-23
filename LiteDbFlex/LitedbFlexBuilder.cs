@@ -47,8 +47,8 @@ namespace LiteDbFlex
             return this;
         }
 
-        public LitedbFlexBuilder<T> DropIndex() {
-            this.LiteCollection.DropIndex(this.tableName);
+        public LitedbFlexBuilder<T> DropIndex(string name) {
+            this.LiteCollection.DropIndex(name);
             return this;
         }
 

@@ -1,7 +1,7 @@
 # LiteDbFlex
 litedb extensions
 
-[usege]
+[usage]
 
 ```csharp
     [LiteDbTable("MyData.db", "customers")]
@@ -49,4 +49,54 @@ litedb extensions
             tran.jCommit();
         }
     }
+```
+
+[builder usage]
+``` csharp
+    //insert
+    using(var builder = new LitedbFlexBuilder<Customer>())
+    {
+        builder.DropIndex("Name");
+        var result = builder.BeginTrans()
+        .EnsureIndex(m => m.Id, true)
+        .Insert(new Customer() {
+            Name = "seokwon hong",
+            Phones = new string[] { "8000-0000", "9000-0000" },
+            Age = 30,
+            IsActive = true
+        })
+        .Commit()
+        .GetResult<BsonValue>();
+
+        Assert.Greater((int)result, 0);
+    }
+
+    //getall
+    using(var builder = new LitedbFlexBuilder<Customer>())
+    {
+        var result = builder
+        .Gets()
+        .GetResult<IEnumerable<Customer>>();
+
+        Assert.Greater(result.Count(), 1);
+    }
+
+    //where get
+    using(var builder = new LitedbFlexBuilder<Customer>())
+    {
+        var result = builder
+        .Get(m => m.Name == "seokwon hong")
+        .GetResult<Customer>();
+
+        Assert.NotNull(result);
+    }
+    
+    //get skip, take
+    using(var builder = new LitedbFlexBuilder<Customer>()) {
+        var result = builder
+        .Gets(null, 0, 1)
+        .GetResult<IEnumerable<Customer>>();
+
+        Assert.AreEqual(result.ToList()[0].Id, 1);
+    }    
 ```

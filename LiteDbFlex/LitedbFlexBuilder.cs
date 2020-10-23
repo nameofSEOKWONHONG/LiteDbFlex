@@ -64,7 +64,11 @@ namespace LiteDbFlex
             else 
                 this.Result = this.LiteCollection.FindAll().Skip(skip).Take(limit).ToList<T>();
             return this;
-        }        
+        }
+
+        public IEnumerable<T> GetEnumerable(Expression<Func<T, bool>> predicate) {
+            return this.LiteCollection.Find(predicate);
+        }
 
         public LitedbFlexBuilder<T> Get(int id) {
             this.Result = this.LiteCollection.FindById(id);

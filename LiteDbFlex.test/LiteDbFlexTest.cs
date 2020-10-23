@@ -3,7 +3,8 @@ using LiteDbFlex;
 using System.Linq;
 
 namespace LiteDbFlex.test {
-    public class LiteDbFlexTest {
+    public class LiteDbFlexTest : BaseTestClass
+    {
         Customer addCustomer = null;
         [SetUp]
         public void Setup() {

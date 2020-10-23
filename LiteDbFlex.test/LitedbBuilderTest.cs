@@ -7,7 +7,7 @@ using System;
 
 namespace LiteDbFlex.test
 {
-    public class LitedbBuilderTest
+    public class LitedbBuilderTest : BaseTestClass
     {
         string additionalName = DateTime.Now.ToString("yyyyMMdd") + "_customer";
         

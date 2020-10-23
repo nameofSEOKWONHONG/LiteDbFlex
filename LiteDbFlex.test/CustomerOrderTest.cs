@@ -7,7 +7,7 @@ using System;
 
 namespace LiteDbFlex.test
 {
-    public class CustomerOrderTest
+    public class CustomerOrderTest : BaseTestClass
     {
         string additionalNameOrder = DateTime.Now.ToString("yyyyMMdd") + "_order";
         string additionalNameCustomer = DateTime.Now.ToString("yyyyMMdd") + "_customer";
@@ -61,8 +61,7 @@ namespace LiteDbFlex.test
         public void Test2() {
             using(var orderBuilder = new LitedbFlexBuilder<Order>(additionalNameOrder))
             {
-                var results = orderBuilder.Gets(m => m.Menu == "hambugger")
-                    .GetResult<IEnumerable<Order>>();
+                var results = orderBuilder.GetEnumerable(m => m.Menu == "hambugger");
                 using(var customerBuilder = new LitedbFlexBuilder<Customer>(additionalNameCustomer))
                 {
                     foreach(var order in results) 

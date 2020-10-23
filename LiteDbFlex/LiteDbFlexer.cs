@@ -6,14 +6,15 @@ using System.Linq.Expressions;
 namespace LiteDbFlex {
     public static class LiteDbFlexer {
         #region [litedb - chaining methods]
-        public static ILiteCollection<T> jGetCollection<T>(this ILiteDatabase liteDatabase, string tableName)
+
+        public static ILiteCollection<T> jGetCollection<T>(this ILiteDatabase liteDatabase, string tableName = null)
             where T : class {
-            return liteDatabase.GetCollection<T>(tableName);
-        }
-        public static ILiteCollection<T> jGetCollection<T>(this ILiteDatabase liteDatabase)
-            where T : class {
+            if(!string.IsNullOrEmpty(tableName)) {
+                return liteDatabase.GetCollection<T>(tableName);    
+            }
             return liteDatabase.GetCollection<T>(typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.TableName));
         }
+
         public static ILiteDatabase jBeginTrans(this ILiteDatabase liteDatabase) {
             if (liteDatabase.BeginTrans() == false) {
                 throw new Exception("litedb transaction failed on begintrans");
@@ -57,10 +58,6 @@ namespace LiteDbFlex {
             return liteCollection.DeleteMany(expression) > 0;
         }
 
-        public static bool jEnsureIndex<T>(this ILiteCollection<T> liteCollection, Expression<Func<T, T>> expression) {
-            return liteCollection.EnsureIndex<T>(expression);
-        }
-
         public static bool jUpsert<T>(this ILiteCollection<T> liteCollection, T entity) {
             return liteCollection.Upsert(entity);
         }
@@ -79,6 +76,14 @@ namespace LiteDbFlex {
                 throw new Exception("litedb transaction failed on rollback");
             }
             return result;
+        }
+
+        public static ILiteCollection<T> jEnsureIndex<T>(this ILiteCollection<T> collection, Expression<Func<T, string>> expression, bool isUnique = true) {
+            if(collection.EnsureIndex(expression, isUnique)) {
+                throw new Exception("not ensure index");
+            }
+
+            return collection;
         }
         #endregion [litedb]
     }

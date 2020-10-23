@@ -20,6 +20,7 @@ namespace LiteDbFlex.test {
             using (var db = LiteDbResolver.Resolve<Customer>()) {
                 var tran = db.jBeginTrans();
                 var addId = tran.jGetCollection<Customer>()
+                    .jEnsureIndex(x => x.Name)
                     .jInsert(addCustomer);
                 tran.jCommit();
 

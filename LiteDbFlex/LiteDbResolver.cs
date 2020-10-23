@@ -6,10 +6,13 @@ namespace LiteDbFlex {
 
         }
 
-        public static ILiteDatabase Resolve<TEntity>()
+        public static ILiteDatabase Resolve<TEntity>(string additionalName = "")
             where TEntity : class {
             var fileConnection = typeof(TEntity).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.FileName);
             if (!string.IsNullOrEmpty(fileConnection)) {
+                if (!string.IsNullOrEmpty(additionalName)) {
+                    return new LiteDatabase($"{additionalName}_{fileConnection}");
+                }
                 return new LiteDatabase(fileConnection);
             }
 

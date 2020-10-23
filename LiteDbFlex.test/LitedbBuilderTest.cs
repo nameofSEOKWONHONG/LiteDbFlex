@@ -3,15 +3,23 @@ using LiteDbFlex;
 using System.Linq;
 using LiteDB;
 using System.Collections.Generic;
+using System;
 
 namespace LiteDbFlex.test
 {
     public class LitedbBuilderTest
     {
+        string additionalName = DateTime.Now.ToString("yyyyMMdd");
+        
+        [SetUp]
+        public void SetUp() {
+
+        }
+
         [Test]
         public void Test1()
         {
-            using(var builder = new LitedbFlexBuilder<Customer>())
+            using(var builder = new LitedbFlexBuilder<Customer>(additionalName))
             {
                 builder.DropIndex("Name");
                 var result = builder.BeginTrans()
@@ -31,7 +39,7 @@ namespace LiteDbFlex.test
 
         [Test]
         public void Test2() {
-            using(var builder = new LitedbFlexBuilder<Customer>())
+            using(var builder = new LitedbFlexBuilder<Customer>(additionalName))
             {
                 var result = builder
                 .Gets()
@@ -43,7 +51,7 @@ namespace LiteDbFlex.test
 
         [Test]
         public void Test3() {
-            using(var builder = new LitedbFlexBuilder<Customer>())
+            using(var builder = new LitedbFlexBuilder<Customer>(additionalName))
             {
                 var result = builder
                 .Get(m => m.Name == "seokwon hong")
@@ -55,12 +63,31 @@ namespace LiteDbFlex.test
         
         [Test]
         public void Test4() {
-            using(var builder = new LitedbFlexBuilder<Customer>()) {
+            using(var builder = new LitedbFlexBuilder<Customer>(additionalName)) {
                 var result = builder
                 .Gets(null, 0, 1)
                 .GetResult<IEnumerable<Customer>>();
 
                 Assert.AreEqual(result.ToList()[0].Id, 1);
+            }
+        }
+
+        [Test]
+        public void ExceptionTest1() {
+            using(var builder = new LitedbFlexBuilder<Customer>(additionalName)) {
+                var result = builder
+                .Gets(null, 0, 1)
+                .GetResult<IEnumerable<Customer>>();
+
+                Assert.AreEqual(result.ToList()[0].Id, 1);
+                //throw exception
+                using(var builder2 = new LitedbFlexBuilder<Customer>(additionalName)) {
+                    var result2 = builder2
+                    .Gets(null, 0, 1)
+                    .GetResult<IEnumerable<Customer>>();
+
+                    Assert.AreEqual(result2.ToList()[0].Id, 1);
+                }                
             }
         }
     }

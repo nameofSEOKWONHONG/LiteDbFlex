@@ -5,19 +5,20 @@ using System.Linq.Expressions;
 using LiteDB;
 
 namespace LiteDbFlex
-{
+{    
     public class LitedbFlexBuilder<T> : IDisposable
     where T : class
     {
         public ILiteDatabase LiteDatabase {get; private set;}
         public ILiteCollection<T> LiteCollection {get; private set;}
         public bool IsTran {get; private set;}
+        public bool IsTraned {get; private set;}
         public object Result {get; private set;}
 
         private string tableName;
 
-        public LitedbFlexBuilder() {
-            this.LiteDatabase = LiteDbResolver.Resolve<T>();
+        public LitedbFlexBuilder(string additionalName = "") {
+            this.LiteDatabase = LiteDbResolver.Resolve<T>(additionalName);
             tableName = typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.TableName);
             this.LiteCollection = this.LiteDatabase.GetCollection<T>(tableName);            
         }
@@ -29,7 +30,7 @@ namespace LiteDbFlex
 
         public LitedbFlexBuilder<T> Commit() {
             if(this.IsTran) {
-                this.LiteDatabase.Commit();
+                this.IsTraned = this.LiteDatabase.Commit();
             }
             return this;
         }
@@ -124,7 +125,7 @@ namespace LiteDbFlex
         }
 
         public void Dispose() {
-            if(this.IsTran) {
+            if(this.IsTran && !this.IsTraned) {
                 this.LiteDatabase.Commit();
             }
 

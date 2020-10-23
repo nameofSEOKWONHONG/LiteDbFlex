@@ -11,4 +11,15 @@ namespace LiteDbFlex.test {
         public string[] Phones { get; set; }
         public bool IsActive { get; set; }
     }
+
+    [LiteDbTable("MyData.db", "orders")]
+    public class Order {
+        public int Id {get; set;}
+        public string Menu {get;set;}
+        public decimal Price {get;set;}
+        public int Amt {get;set;}
+        public decimal TotalPrice {get {return this.Price * this.Amt;}}
+        public Customer Customer {get;set;}
+    }
+     
 }

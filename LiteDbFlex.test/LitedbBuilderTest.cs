@@ -9,7 +9,7 @@ namespace LiteDbFlex.test
 {
     public class LitedbBuilderTest
     {
-        string additionalName = DateTime.Now.ToString("yyyyMMdd");
+        string additionalName = DateTime.Now.ToString("yyyyMMdd") + "_customer";
         
         [SetUp]
         public void SetUp() {

@@ -22,7 +22,13 @@ namespace LiteDbFlex {
             TResult result = default(TResult);
             lock (_lock) {
                 var litedbInstnace = new LiteDbFlexer<T>(_additionalName);
-                result = func(litedbInstnace);
+                try {
+                    result = func(litedbInstnace);
+                } catch {
+                    if (litedbInstnace.IsTran) {
+                        litedbInstnace.Rollback();
+                    }
+                }
                 litedbInstnace.Dispose();
             }
 
@@ -34,7 +40,14 @@ namespace LiteDbFlex {
 
             using (await _mutex.LockAsync()) {
                 var litedbInstnace = new LiteDbFlexer<T>(_additionalName);
-                result = func(litedbInstnace);
+                try {
+                    result = func(litedbInstnace);
+                }
+                catch {
+                    if(litedbInstnace.IsTran) {
+                        litedbInstnace.Rollback();
+                    }
+                }
                 litedbInstnace.Dispose();
             }
 

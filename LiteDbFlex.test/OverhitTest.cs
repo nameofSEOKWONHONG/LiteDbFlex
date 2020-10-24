@@ -20,7 +20,7 @@ namespace LiteDbFlex.test
         [Test]
         public void Test1()
         {
-            using(var builder = new LitedbFlexBuilder<Customer>(additionalNameCustomer))
+            using(var builder = new LiteDbFlexer<Customer>(additionalNameCustomer))
             {
                 Enumerable.Range(1, 5000).ToList().ForEach(i => {
                     var result = builder.BeginTrans()
@@ -41,7 +41,7 @@ namespace LiteDbFlex.test
 
         [Test]
         public void Test2() {
-            using(var builder = new LitedbFlexBuilder<Customer>(additionalNameCustomer))
+            using(var builder = new LiteDbFlexer<Customer>(additionalNameCustomer))
             {
                 var results = builder.GetEnumerable(m => m.Name == "seokwon hong");
                 foreach(var customer in results) {

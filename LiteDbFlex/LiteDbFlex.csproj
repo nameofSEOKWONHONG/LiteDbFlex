@@ -5,17 +5,22 @@
 
     <!-- nuget setting -->
     <PackageId>LiteDbFlex</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>seokwon hong</Authors>
     <Company>open society</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>LiteDb Extension</Description>
     <Copyright>MIT</Copyright>
     <PackageProjectUrl>https://github.com/nameofSEOKWONHONG/LiteDbFlex.git</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/nameofSEOKWONHONG/LiteDbFlex.git</RepositoryUrl>
+    <PackageTags>litedb, litedb-extensions, extension</PackageTags>
+    <PackageReleaseNotes>add LiteDbSafeFlexer. (instance locking)
+change class name.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="LiteDB" Version="5.0.9" />
+    <PackageReference Include="Nito.AsyncEx" Version="5.1.0" />
   </ItemGroup>
 
 

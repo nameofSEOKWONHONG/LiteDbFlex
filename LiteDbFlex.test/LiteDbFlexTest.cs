@@ -20,12 +20,12 @@ namespace LiteDbFlex.test {
         public void InsertTest() {
             using (var db = LiteDbResolver.Resolve<Customer>()) {
                 var tran = db.jBeginTrans();
-                var addId = tran.jGetCollection<Customer>()
-                    .jEnsureIndex(x => x.Name)
+                var result = tran.jGetCollection<Customer>()
+                    .jEnsureIndex(x => x.Id)
                     .jInsert(addCustomer);
                 tran.jCommit();
 
-                Assert.Greater((int)addId, 0);
+                Assert.Greater((int)result, 0);
             }
         }
 

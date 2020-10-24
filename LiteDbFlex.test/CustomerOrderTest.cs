@@ -33,9 +33,9 @@ namespace LiteDbFlex.test
         [Test]
         public void Test1()
         {
-            using(var customerBuilder =  new LitedbFlexBuilder<Customer>(additionalNameCustomer)) {
+            using(var customerBuilder =  new LiteDbFlexer<Customer>(additionalNameCustomer)) {
                 var results = customerBuilder.Gets().GetResult<IEnumerable<Customer>>();
-                using(var builder = new LitedbFlexBuilder<Order>(additionalNameOrder))
+                using(var builder = new LiteDbFlexer<Order>(additionalNameOrder))
                 {
                     Random random = new Random();
                     foreach(var customer in results) {
@@ -59,10 +59,10 @@ namespace LiteDbFlex.test
 
         [Test]
         public void Test2() {
-            using(var orderBuilder = new LitedbFlexBuilder<Order>(additionalNameOrder))
+            using(var orderBuilder = new LiteDbFlexer<Order>(additionalNameOrder))
             {
                 var results = orderBuilder.GetEnumerable(m => m.Menu == "hambugger");
-                using(var customerBuilder = new LitedbFlexBuilder<Customer>(additionalNameCustomer))
+                using(var customerBuilder = new LiteDbFlexer<Customer>(additionalNameCustomer))
                 {
                     foreach(var order in results) 
                     {

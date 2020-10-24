@@ -1,90 +1,140 @@
-﻿using LiteDB;
+using LiteDB;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace LiteDbFlex {
-    public static class LiteDbFlexer {
-        #region [litedb - chaining methods]
+    public class LiteDbFlexer<T> : IDisposable
+        where T : class
+    {
+        public ILiteDatabase LiteDatabase {get; private set;}
+        public ILiteCollection<T> LiteCollection {get; private set;}
+        public bool IsTran {get; private set;}
+        public bool IsTraned {get; private set;}
+        public object Result {get; private set;}
 
-        public static ILiteCollection<T> jGetCollection<T>(this ILiteDatabase liteDatabase, string tableName = null)
-            where T : class {
-            if(!string.IsNullOrEmpty(tableName)) {
-                return liteDatabase.GetCollection<T>(tableName);    
+        private string tableName;
+
+        public LiteDbFlexer(string additionalName = "") {
+            this.LiteDatabase = LiteDbResolver.Resolve<T>(additionalName);
+            tableName = typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.TableName);
+            this.LiteCollection = this.LiteDatabase.GetCollection<T>(tableName); 
+        }
+
+        public LiteDbFlexer<T> BeginTrans() {
+            this.IsTran = this.LiteDatabase.BeginTrans();
+            return this;
+        }
+
+        public LiteDbFlexer<T> Commit() {
+            if(this.IsTran) {
+                this.IsTraned = this.LiteDatabase.Commit();
             }
-            return liteDatabase.GetCollection<T>(typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.TableName));
+            return this;
         }
 
-        public static ILiteDatabase jBeginTrans(this ILiteDatabase liteDatabase) {
-            if (liteDatabase.BeginTrans() == false) {
-                throw new Exception("litedb transaction failed on begintrans");
+        public LiteDbFlexer<T> Rollback() {
+            if(this.IsTran) {
+                this.LiteDatabase.Rollback();
             }
-            return liteDatabase;
+            return this;
+        }        
+
+        public LiteDbFlexer<T> EnsureIndex<K>(Expression<Func<T, K>> keySelector, bool unique = false)
+        {
+            this.LiteCollection.EnsureIndex(keySelector, unique);
+            return this;
         }
 
-        public static T jGet<T>(this ILiteCollection<T> liteCollection, int id) {
-            return liteCollection.FindById(id);
+        public LiteDbFlexer<T> DropIndex(string name) {
+            this.LiteCollection.DropIndex(name);
+            return this;
         }
 
-        public static T jGet<T>(this ILiteCollection<T> liteCollection, Expression<Func<T, bool>> expression) {
-            return liteCollection.FindOne(expression);
+        public LiteDbFlexer<T> Gets() {
+            this.Result = this.LiteCollection.FindAll().ToList<T>();
+            return this;
         }
 
-        public static IEnumerable<T> jGetAll<T>(this ILiteCollection<T> liteCollection) {
-            return liteCollection.FindAll();
+        public LiteDbFlexer<T> Gets(Expression<Func<T, bool>> predicate, int skip = 0, int limit = int.MaxValue) {
+            if(predicate != null)
+                this.Result = this.LiteCollection.Find(predicate, skip, limit).ToList<T>();
+            else 
+                this.Result = this.LiteCollection.FindAll().Skip(skip).Take(limit).ToList<T>();
+            return this;
         }
 
-        public static bool jUpdate<T>(this ILiteCollection<T> liteCollection, T entity) {
-            return liteCollection.Update(entity);
+        public IEnumerable<T> GetEnumerable(Expression<Func<T, bool>> predicate) {
+            return this.LiteCollection.Find(predicate);
         }
 
-        public static BsonValue jInsert<T>(this ILiteCollection<T> liteCollection, T entity) {
-            return liteCollection.Insert(entity);
+        public LiteDbFlexer<T> Get(int id) {
+            this.Result = this.LiteCollection.FindById(id);
+            return this;
         }
 
-        public static int jInsertBulk<T>(this ILiteCollection<T> liteCollection, IEnumerable<T> entities, int bulksize = 5000) {
-            return liteCollection.InsertBulk(entities, bulksize);
+        public LiteDbFlexer<T> Get(Expression<Func<T, bool>> predicate) {
+            this.Result = this.LiteCollection.FindOne(predicate);
+            return this;
         }
 
-        public static bool jDelete<T>(this ILiteCollection<T> liteCollection, BsonValue id) {
-            return liteCollection.Delete(id);
+        public LiteDbFlexer<T> Insert(T entity) {
+            this.Result = this.LiteCollection.Insert(entity);
+            return this;
         }
 
-        public static bool jDeleteAll<T>(this ILiteCollection<T> liteCollection) {
-            return liteCollection.DeleteAll() > 0;
+        public LiteDbFlexer<T> Insert(IEnumerable<T> entities, int batchSize = 5000) {
+            this.Result = this.LiteCollection.InsertBulk(entities, batchSize);
+            return this;
         }
 
-        public static bool jDeleteMany<T>(this ILiteCollection<T> liteCollection, Expression<Func<T, bool>> expression) {
-            return liteCollection.DeleteMany(expression) > 0;
+        public LiteDbFlexer<T> Update(T entity) {
+            this.Result = this.LiteCollection.Update(entity);
+            return this;
         }
 
-        public static bool jUpsert<T>(this ILiteCollection<T> liteCollection, T entity) {
-            return liteCollection.Upsert(entity);
+        public LiteDbFlexer<T> Update(Expression<Func<T, T>> expression, Expression<Func<T, bool>> predicate) {
+            this.Result = this.LiteCollection.UpdateMany(expression, predicate);
+            return this;
         }
 
-        public static bool jCommit(this ILiteDatabase liteDatabase) {
-            var result = liteDatabase.Commit();
-            if (result == false) {
-                throw new Exception("litedb transaction failed on commit");
+        public LiteDbFlexer<T> Delete(int id) {
+            this.Result = this.LiteCollection.Delete(id);
+            return this;
+        }
+
+        public LiteDbFlexer<T> Delete(Expression<Func<T, bool>> predicate) {
+            this.Result = this.LiteCollection.DeleteMany(predicate);
+            return this;
+        }
+
+        public LiteDbFlexer<T> Delete() {
+            this.Result = this.LiteCollection.DeleteAll();
+            return this;            
+        }
+
+        public int GetIntResult() {
+            return (int)this.Result;
+        }
+
+        public bool GetIsResult() {
+            return (bool)this.Result;            
+        }
+
+        public TResult GetResult<TResult>() 
+        where TResult : class {
+            return (TResult)this.Result;
+        }
+
+        public void Dispose() {
+            if(this.IsTran && !this.IsTraned) {
+                this.LiteDatabase.Commit();
             }
-            return result;
-        }
 
-        public static bool jRollback(this ILiteDatabase liteDatabase) {
-            var result = liteDatabase.Rollback();
-            if (result == false) {
-                throw new Exception("litedb transaction failed on rollback");
+            if(this.LiteDatabase != null) {
+                this.LiteDatabase.Dispose();
             }
-            return result;
         }
-
-        public static ILiteCollection<T> jEnsureIndex<T>(this ILiteCollection<T> collection, Expression<Func<T, string>> expression, bool isUnique = true) {
-            if(collection.EnsureIndex(expression, isUnique)) {
-                throw new Exception("not ensure index");
-            }
-
-            return collection;
-        }
-        #endregion [litedb]
     }
 }

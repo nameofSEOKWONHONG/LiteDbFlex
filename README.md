@@ -63,7 +63,7 @@ implement litedb extensions and chain methods
             public string[] Phones { get; set; }
             public bool IsActive { get; set; }
         }
-        
+
         string additionalName = DateTime.Now.ToString("yyyyMMdd") + "_customer";
         
         [SetUp]
@@ -144,4 +144,15 @@ implement litedb extensions and chain methods
                 }                
             }
         }
+```
+
+3. LiteDbSafeFlexer
+```csharp
+    var result1 = LiteDbSafeFlexer<Customer>
+        .Instance
+        .Value
+        .SetAdditionalName()
+        .Execute<Customer>(o => {
+            return o.Get(1).GetResult<Customer>();
+        });
 ```

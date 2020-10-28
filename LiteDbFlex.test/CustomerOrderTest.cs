@@ -79,14 +79,14 @@ namespace LiteDbFlex.test
         public async Task Test3() {
             var result1 = LiteDbSafeFlexer<Order>.Instance
                 .Value
-                .SetAdditionalName()
+                .SetAdditionalDbFileName()
                 .Execute<IEnumerable<Order>>(o => {
                     return o.Gets().GetResult<IEnumerable<Order>>();
                 });
 
             foreach(var order in result1) {
                 var customer = await LiteDbSafeFlexer<Customer>.Instance
-                    .Value.SetAdditionalName().ExecuteAsync<Customer>(o => {
+                    .Value.SetAdditionalDbFileName().ExecuteAsync<Customer>(o => {
                         return o.Get(order.Customer.Id).GetResult<Customer>();
                     });
 

@@ -6,20 +6,26 @@ using System.Linq.Expressions;
 
 namespace LiteDbFlex {
     public class LiteDbFlexer<T> : IDisposable
-        where T : class
-    {
-        public ILiteDatabase LiteDatabase {get; private set;}
-        public ILiteCollection<T> LiteCollection {get; private set;}
-        public bool IsTran {get; private set;}
-        public bool IsTraned {get; private set;}
-        public object Result {get; private set;}
+        where T : class {
+        public ILiteDatabase LiteDatabase { get; private set; }
+        public ILiteCollection<T> LiteCollection { get; private set; }
+        public bool IsTran { get; private set; }
+        public bool IsTraned { get; private set; }
+        public object Result { get; private set; }
+        public string TableName {get; private set;}
+        public string DbFileName { get; private set; }
+        public string FullDbFileName { get; private set; }
 
-        private string tableName;
+        public LiteDbFlexer(string additionalDbFileName = "") {
+            DbFileName = typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.FileName);
+            TableName = typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.TableName);
 
-        public LiteDbFlexer(string additionalName = "") {
-            this.LiteDatabase = LiteDbResolver.Resolve<T>(additionalName);
-            tableName = typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.TableName);
-            this.LiteCollection = this.LiteDatabase.GetCollection<T>(tableName); 
+            if(!string.IsNullOrEmpty(additionalDbFileName)) {
+                FullDbFileName = $"{additionalDbFileName}_{DbFileName}";
+            }
+
+            this.LiteDatabase = LiteDbResolver.Resolve<T>(additionalDbFileName);
+            this.LiteCollection = this.LiteDatabase.GetCollection<T>(TableName);
         }
 
         public LiteDbFlexer<T> BeginTrans() {
@@ -39,7 +45,7 @@ namespace LiteDbFlex {
                 this.LiteDatabase.Rollback();
             }
             return this;
-        }        
+        }
 
         public LiteDbFlexer<T> EnsureIndex<K>(Expression<Func<T, K>> keySelector, bool unique = false)
         {
@@ -60,7 +66,7 @@ namespace LiteDbFlex {
         public LiteDbFlexer<T> Gets(Expression<Func<T, bool>> predicate, int skip = 0, int limit = int.MaxValue) {
             if(predicate != null)
                 this.Result = this.LiteCollection.Find(predicate, skip, limit).ToList<T>();
-            else 
+            else
                 this.Result = this.LiteCollection.FindAll().Skip(skip).Take(limit).ToList<T>();
             return this;
         }
@@ -111,7 +117,7 @@ namespace LiteDbFlex {
 
         public LiteDbFlexer<T> Delete() {
             this.Result = this.LiteCollection.DeleteAll();
-            return this;            
+            return this;
         }
 
         public int GetIntResult() {
@@ -119,10 +125,10 @@ namespace LiteDbFlex {
         }
 
         public bool GetIsResult() {
-            return (bool)this.Result;            
+            return (bool)this.Result;
         }
 
-        public TResult GetResult<TResult>() 
+        public TResult GetResult<TResult>()
         where TResult : class {
             return (TResult)this.Result;
         }

@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace LiteDbFlex.test {
-    public class LiteDbFlexerManagerTest {
+    public class LiteDbSafeFlexerTest {
         [Test]
         public void Test1() {
             var result1 = LiteDbSafeFlexer<Customer>
                 .Instance
                 .Value
-                .SetAdditionalName()
+                .SetAdditionalDbFileName()
                 .Execute<Customer>(o => {
                     return o.Get(1).GetResult<Customer>();
                 });
@@ -24,7 +24,7 @@ namespace LiteDbFlex.test {
             var result1 = await LiteDbSafeFlexer<Customer>
                 .Instance
                 .Value
-                .SetAdditionalName()
+                .SetAdditionalDbFileName()
                 .ExecuteAsync<Customer>(o => {
                     return o.Get(1).GetResult<Customer>();
                 });
@@ -32,7 +32,7 @@ namespace LiteDbFlex.test {
             var result2 = await LiteDbSafeFlexer<Customer>
                 .Instance
                 .Value
-                .SetAdditionalName()
+                .SetAdditionalDbFileName()
                 .ExecuteAsync<Customer>(o => {
                     return o.Get(1).GetResult<Customer>();
                 });

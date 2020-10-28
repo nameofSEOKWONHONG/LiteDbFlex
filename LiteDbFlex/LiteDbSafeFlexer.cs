@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace LiteDbFlex {
     public class LiteDbSafeFlexer<T>
         where T : class {
-        string _additionalName = string.Empty;
+        string _additionalDbFileName = string.Empty;
         object _lock = new object();
         AsyncLock _mutex = new AsyncLock();
 
@@ -13,23 +13,23 @@ namespace LiteDbFlex {
             return new LiteDbSafeFlexer<T>();
         });
 
-        public LiteDbSafeFlexer<T> SetAdditionalName(string additionalName = "") {
-            this._additionalName = additionalName;
+        public LiteDbSafeFlexer<T> SetAdditionalDbFileName(string additionalDbFileName = "") {
+            this._additionalDbFileName = additionalDbFileName;
             return this;
         }
 
         public TResult Execute<TResult>(Func<LiteDbFlexer<T>, TResult> func) {
             TResult result = default(TResult);
             lock (_lock) {
-                var litedbInstnace = new LiteDbFlexer<T>(_additionalName);
+                var liteDbFlexer = new LiteDbFlexer<T>(_additionalDbFileName);
                 try {
-                    result = func(litedbInstnace);
+                    result = func(liteDbFlexer);
                 } catch {
-                    if (litedbInstnace.IsTran) {
-                        litedbInstnace.Rollback();
+                    if (liteDbFlexer.IsTran) {
+                        liteDbFlexer.Rollback();
                     }
                 }
-                litedbInstnace.Dispose();
+                liteDbFlexer.Dispose();
             }
 
             return result;
@@ -39,16 +39,16 @@ namespace LiteDbFlex {
             TResult result = default(TResult);
 
             using (await _mutex.LockAsync()) {
-                var litedbInstnace = new LiteDbFlexer<T>(_additionalName);
+                var liteDbFlexer = new LiteDbFlexer<T>(_additionalDbFileName);
                 try {
-                    result = func(litedbInstnace);
+                    result = func(liteDbFlexer);
                 }
                 catch {
-                    if(litedbInstnace.IsTran) {
-                        litedbInstnace.Rollback();
+                    if(liteDbFlexer.IsTran) {
+                        liteDbFlexer.Rollback();
                     }
                 }
-                litedbInstnace.Dispose();
+                liteDbFlexer.Dispose();
             }
 
             return result;

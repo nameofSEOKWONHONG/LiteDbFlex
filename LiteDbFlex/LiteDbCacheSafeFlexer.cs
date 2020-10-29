@@ -17,7 +17,7 @@ namespace LiteDbFlex {
     public sealed class LiteDbCacheSafeFlexer<TEntity, TRequest>
         where TEntity : class
         where TRequest : class {
-        public List<CacheSafe> Caches { get; private set; } = new List<CacheSafe>();
+        public List<CacheInfo> Caches { get; private set; } = new List<CacheInfo>();
 
         string _additionalDbFileName = string.Empty;
         object _lock = new object();
@@ -46,7 +46,7 @@ namespace LiteDbFlex {
             var requestHash = JsonConvert.SerializeObject(request).GetHashCode();
             var selected = Caches.Where(m => m.HashCode == requestHash).FirstOrDefault();
             if (selected == null) {
-                Caches.Add(new CacheSafe(requestHash, null, DateTime.Now));
+                Caches.Add(new CacheInfo(requestHash, null, DateTime.Now));
             }
             return this;
         }
@@ -139,7 +139,7 @@ namespace LiteDbFlex {
 
         public void CacheClear() {
             lock (_lock) {
-                var removes = new List<CacheSafe>();
+                var removes = new List<CacheInfo>();
                 foreach (var item in Caches) {
                     if (item.SetTime == null) continue;
                     if ((DateTime.Now - item.SetTime.Value).TotalSeconds > INTERVAL) {
@@ -164,7 +164,7 @@ namespace LiteDbFlex {
 
         public async Task CacheClearAsync() {
             using(await _mutex.LockAsync()) {
-                var removes = new List<CacheSafe>();
+                var removes = new List<CacheInfo>();
                 foreach (var item in Caches) {
                     if (item.SetTime == null) continue;
                     if ((DateTime.Now - item.SetTime.Value).TotalSeconds > INTERVAL) {
@@ -178,12 +178,12 @@ namespace LiteDbFlex {
             }
         }
 
-        public class CacheSafe {
+        public class CacheInfo {
             public int HashCode { get; set; } = 0;
             public object Data { get; set; } = null;
             public DateTime? SetTime { get; set; } = null;
 
-            public CacheSafe(int hashCode, object data, DateTime? setTime) {
+            public CacheInfo(int hashCode, object data, DateTime? setTime) {
                 this.HashCode = hashCode;
                 this.Data = data;
                 this.SetTime = setTime;

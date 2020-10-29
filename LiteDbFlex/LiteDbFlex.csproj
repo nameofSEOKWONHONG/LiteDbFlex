@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
 
     <!-- nuget setting -->
     <PackageId>LiteDbFlex</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>seokwon hong</Authors>
     <Company>open society</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -14,8 +14,7 @@
     <PackageProjectUrl>https://github.com/nameofSEOKWONHONG/LiteDbFlex.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/nameofSEOKWONHONG/LiteDbFlex.git</RepositoryUrl>
     <PackageTags>litedb, litedb-extensions, extension</PackageTags>
-    <PackageReleaseNotes>add LiteDbSafeFlexer. (instance locking)
-change class name.</PackageReleaseNotes>
+    <PackageReleaseNotes>add LiteDbCacheSafeFlexer (cache get result data)</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

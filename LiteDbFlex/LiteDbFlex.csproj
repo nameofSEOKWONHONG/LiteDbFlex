@@ -5,16 +5,17 @@
 
     <!-- nuget setting -->
     <PackageId>LiteDbFlex</PackageId>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Authors>seokwon hong</Authors>
     <Company>open society</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Description>LiteDb Extension</Description>
+    <Description>LiteDb extension</Description>
     <Copyright>MIT</Copyright>
     <PackageProjectUrl>https://github.com/nameofSEOKWONHONG/LiteDbFlex.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/nameofSEOKWONHONG/LiteDbFlex.git</RepositoryUrl>
     <PackageTags>litedb, litedb-extensions, extension</PackageTags>
-    <PackageReleaseNotes>add LiteDbCacheSafeFlexer (cache get result data)</PackageReleaseNotes>
+    <PackageReleaseNotes>add LiteDbFlexerManager (support maintain instance)
+</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

@@ -95,7 +95,8 @@ namespace LiteDbFlex {
             return this;
         }
 
-        public TResult Execute<TResult>(Func<LiteDbFlexer<TEntity>, TRequest, TResult> func) {
+        public TResult Execute<TResult>(Func<LiteDbFlexer<TEntity>, TRequest, TResult> func)
+            where TResult : class {
             CheckCacheClear();
             this._cacheClearCounter += 1;
             var requestHash = this._request.jToHashCode();
@@ -132,7 +133,8 @@ namespace LiteDbFlex {
             return result;
         }
 
-        public async Task<TResult> ExecuteAsync<TResult>(Func<LiteDbFlexer<TEntity>, TRequest, TResult> func) {
+        public async Task<TResult> ExecuteAsync<TResult>(Func<LiteDbFlexer<TEntity>, TRequest, TResult> func)
+            where TResult : class {
             await CheckCacheClearAsync();
             this._cacheClearCounter += 1;
             var requestHash = this._request.jToHashCode();

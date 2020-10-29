@@ -81,6 +81,14 @@ namespace LiteDbFlex.test {
                 Assert.Greater(result2.Count(), 0);
             });
 
+            //not allowed
+            //var result3 = LiteDbCacheSafeFlexer<Customer, Customer>.Instance.Value
+            //    .SetRequest(request)
+            //    .SetAdditionalDbFileName()
+            //    .Execute<int>((o, r) => {
+            //        return o.Delete(x => x.Name == r.Name).GetResult<int>();
+            //    });
+
         }
     }
 }

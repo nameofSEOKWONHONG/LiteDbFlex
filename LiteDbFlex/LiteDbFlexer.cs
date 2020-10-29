@@ -5,6 +5,10 @@ using System.Linq;
 using System.Linq.Expressions;
 
 namespace LiteDbFlex {
+    /// <summary>
+    /// litedb flexer (implement chain method and helper class)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class LiteDbFlexer<T> : IDisposable
         where T : class {
         public ILiteDatabase LiteDatabase { get; private set; }

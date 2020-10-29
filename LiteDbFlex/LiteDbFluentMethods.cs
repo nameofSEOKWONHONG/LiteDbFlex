@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace LiteDbFlex {
+    /// <summary>
+    /// litedb extension method
+    /// </summary>
     public static class LiteDbFluentMethods {
         #region [litedb - chaining methods]
 

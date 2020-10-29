@@ -1,6 +1,9 @@
 ﻿using LiteDB;
 
 namespace LiteDbFlex {
+    /// <summary>
+    /// create litedb instance
+    /// </summary>
     public class LiteDbResolver {
         private LiteDbResolver() {
 

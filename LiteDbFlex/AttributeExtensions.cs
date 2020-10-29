@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 
 namespace LiteDbFlex {
+    /// <summary>
+    /// get value of attrivute extension
+    /// </summary>
     internal static class AttributeExtensions {
         public static TValue GetAttributeValue<TAttribute, TValue>(
             this Type type,

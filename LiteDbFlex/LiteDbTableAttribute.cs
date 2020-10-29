@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace LiteDbFlex {
+    /// <summary>
+    /// litedb entity extension attribute
+    /// </summary>
     [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
     public class LiteDbTableAttribute : Attribute  {
         public string FileName { get; private set; }

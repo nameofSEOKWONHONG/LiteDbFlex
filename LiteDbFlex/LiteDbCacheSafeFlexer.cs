@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace LiteDbFlex {
     /// <summary>
-    /// litedb instance safe and result data cache
+    /// litedbsafeflexer instance and result data cache
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <typeparam name="TRequest"></typeparam>

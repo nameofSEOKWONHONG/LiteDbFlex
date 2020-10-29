@@ -21,7 +21,7 @@ namespace LiteDbFlex {
         public string FullDbFileName { get; private set; }
 
         public LiteDbFlexer(string additionalDbFileName = "") {
-            DbFileName = typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.FileName);
+            FullDbFileName = DbFileName = typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.FileName);
             TableName = typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.TableName);
 
             if(!string.IsNullOrEmpty(additionalDbFileName)) {
@@ -124,16 +124,7 @@ namespace LiteDbFlex {
             return this;
         }
 
-        public int GetIntResult() {
-            return (int)this.Result;
-        }
-
-        public bool GetIsResult() {
-            return (bool)this.Result;
-        }
-
-        public TResult GetResult<TResult>()
-        where TResult : class {
+        public TResult GetResult<TResult>() {
             return (TResult)this.Result;
         }
 

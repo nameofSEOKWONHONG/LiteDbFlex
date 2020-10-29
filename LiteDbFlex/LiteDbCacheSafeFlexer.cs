@@ -17,25 +17,69 @@ namespace LiteDbFlex {
     public sealed class LiteDbCacheSafeFlexer<TEntity, TRequest>
         where TEntity : class
         where TRequest : class {
+        #region property
+        /// <summary>
+        /// cache list
+        /// </summary>
         public List<CacheInfo> Caches { get; private set; } = new List<CacheInfo>();
-
-        string _additionalDbFileName = string.Empty;
-        object _lock = new object();
-        object _cacheClearLock = new object();
-
-        AsyncLock _mutex = new AsyncLock();
-        AsyncLock _cacheClearMutex = new AsyncLock();
-
-        TRequest _request = null;
-
-        const int INTERVAL = 5; //sec
-        const int COUNTER_LIMIT = 100000;
-        int counter = 0;
-
+        /// <summary>
+        /// lazy instance of LiteDbCacheSafeFlexer
+        /// </summary>
         public static Lazy<LiteDbCacheSafeFlexer<TEntity, TRequest>> Instance = new Lazy<LiteDbCacheSafeFlexer<TEntity, TRequest>>(() => {
             return new LiteDbCacheSafeFlexer<TEntity, TRequest>();
         });
+        #endregion
 
+        #region private
+        /// <summary>
+        /// additional db file name
+        /// </summary>
+        string _additionalDbFileName = string.Empty;
+
+        /// <summary>
+        /// base lock
+        /// </summary>
+        object _lock = new object();
+
+        /// <summary>
+        /// cache lock
+        /// </summary>
+        object _cacheClearLock = new object();
+
+        /// <summary>
+        /// async base lock
+        /// </summary>
+        AsyncLock _mutex = new AsyncLock();
+
+        /// <summary>
+        /// async cache lock
+        /// </summary>
+        AsyncLock _cacheClearMutex = new AsyncLock();
+
+        /// <summary>
+        /// request
+        /// </summary>
+        TRequest _request = null;
+
+        /// <summary>
+        /// cache clear counter
+        /// </summary>
+        int _cacheClearCounter = 0;
+        #endregion
+
+        #region private const
+        /// <summary>
+        /// cache clear time interval
+        /// </summary>
+        const int INTERVAL = 5; //sec
+
+        /// <summary>
+        /// cache clear counter limit (per 5000)
+        /// </summary>
+        const int COUNTER_LIMIT = 5000;
+        #endregion
+
+        #region methods
         public LiteDbCacheSafeFlexer<TEntity, TRequest> SetAdditionalDbFileName(string additionalDbFileName = "") {
             this._additionalDbFileName = additionalDbFileName;
             return this;
@@ -43,7 +87,7 @@ namespace LiteDbFlex {
 
         public LiteDbCacheSafeFlexer<TEntity, TRequest> SetRequest(TRequest request) {
             this._request = request;
-            var requestHash = JsonConvert.SerializeObject(request).GetHashCode();
+            var requestHash = this._request.jToHashCode();
             var selected = Caches.Where(m => m.HashCode == requestHash).FirstOrDefault();
             if (selected == null) {
                 Caches.Add(new CacheInfo(requestHash, null, DateTime.Now));
@@ -53,17 +97,18 @@ namespace LiteDbFlex {
 
         public TResult Execute<TResult>(Func<LiteDbFlexer<TEntity>, TRequest, TResult> func) {
             CheckCacheClear();
-            counter += 1;
-            var requestHash = JsonConvert.SerializeObject(this._request).GetHashCode();
-            var cahce = Caches.Where(m => m.HashCode == requestHash).FirstOrDefault();
-            var interval = (DateTime.Now - cahce.SetTime.Value).TotalSeconds;
-            if (interval <= INTERVAL) {
-                if (cahce.HashCode != 0 && cahce.Data != null) {
-                    return (TResult)cahce.Data;
+            this._cacheClearCounter += 1;
+            var requestHash = this._request.jToHashCode();
+            var cache = Caches.Where(m => m.HashCode == requestHash).FirstOrDefault();
+            if (cache != null) {
+                var interval = (DateTime.Now - cache.SetTime.Value).TotalSeconds;
+                if (interval <= INTERVAL) {
+                    if (cache.HashCode != 0 && cache.Data != null) {
+                        return (TResult)cache.Data;
+                    }
+                } else {
+                    cache.Data = null;
                 }
-            }
-            else {
-                cahce.Data = null;
             }
 
             TResult result = default(TResult);
@@ -71,10 +116,10 @@ namespace LiteDbFlex {
                 var liteDbFlexer = new LiteDbFlexer<TEntity>(_additionalDbFileName);
                 try {
                     result = func(liteDbFlexer, _request);
-                    if(IsDiff(result, cahce.Data)) {
-                        cahce.Data = null;
-                        cahce.Data = result;
-                        cahce.SetTime = DateTime.Now;
+                    if(IsDiff(result, cache.Data)) {
+                        cache.Data = null;
+                        cache.Data = result;
+                        cache.SetTime = DateTime.Now;
                     }
                 } catch {
                     if (liteDbFlexer.IsTran) {
@@ -89,13 +134,18 @@ namespace LiteDbFlex {
 
         public async Task<TResult> ExecuteAsync<TResult>(Func<LiteDbFlexer<TEntity>, TRequest, TResult> func) {
             await CheckCacheClearAsync();
-            counter += 1;
-            var requestHash = JsonConvert.SerializeObject(this._request).GetHashCode();
-            var cahce = Caches.Where(m => m.HashCode == requestHash).FirstOrDefault();
-            var interval = (DateTime.Now - cahce.SetTime.Value).TotalSeconds;
-            if (interval <= INTERVAL) {
-                if (cahce.HashCode != 0 && cahce.Data != null) {
-                    return (TResult)cahce.Data;
+            this._cacheClearCounter += 1;
+            var requestHash = this._request.jToHashCode();
+            var cache = Caches.Where(m => m.HashCode == requestHash).FirstOrDefault();
+            if (cache != null) {
+                var interval = (DateTime.Now - cache.SetTime.Value).TotalSeconds;
+                if (interval <= INTERVAL) {
+                    if (cache.HashCode != 0 && cache.Data != null) {
+                        return (TResult)cache.Data;
+                    }
+                }
+                else {
+                    cache.Data = null;
                 }
             }
 
@@ -104,10 +154,10 @@ namespace LiteDbFlex {
                 var liteDbFlexer = new LiteDbFlexer<TEntity>(_additionalDbFileName);
                 try {
                     result = func(liteDbFlexer, _request);
-                    if (IsDiff(result, cahce.Data)) {
-                        cahce.Data = null;
-                        cahce.Data = result;
-                        cahce.SetTime = DateTime.Now;
+                    if (IsDiff(result, cache.Data)) {
+                        cache.Data = null;
+                        cache.Data = result;
+                        cache.SetTime = DateTime.Now;
                     }
                 } catch {
                     if (liteDbFlexer.IsTran) {
@@ -121,23 +171,23 @@ namespace LiteDbFlex {
         }
 
         private bool IsDiff(object diff1, object diff2) {
-            var diff1String = JsonConvert.SerializeObject(diff1);
-            var diff2String = JsonConvert.SerializeObject(diff2);
+            var diff1HashCode = diff1.jToHashCode();
+            var diff2HashCode = diff2.jToHashCode();
 
-            if (diff1String.GetHashCode() != diff2String.GetHashCode()) return true;
+            if (diff1HashCode != diff2HashCode) return true;
             return false;
         }
 
         private void CheckCacheClear() {
             lock(_cacheClearLock) {
-                if (counter >= COUNTER_LIMIT) {
-                    CacheClear();
-                    counter = 0;
+                if (_cacheClearCounter >= COUNTER_LIMIT) {
+                    ClearCache();
+                    _cacheClearCounter = 0;
                 }
             }
         }
 
-        public void CacheClear() {
+        public void ClearCache() {
             lock (_lock) {
                 var removes = new List<CacheInfo>();
                 foreach (var item in Caches) {
@@ -155,14 +205,14 @@ namespace LiteDbFlex {
 
         private async Task CheckCacheClearAsync() {
             using(await _cacheClearMutex.LockAsync()) {
-                if (counter >= COUNTER_LIMIT) {
-                    await CacheClearAsync();
-                    counter = 0;
+                if (_cacheClearCounter >= COUNTER_LIMIT) {
+                    await ClearCacheAsync();
+                    _cacheClearCounter = 0;
                 }
             }
         }
 
-        public async Task CacheClearAsync() {
+        public async Task ClearCacheAsync() {
             using(await _mutex.LockAsync()) {
                 var removes = new List<CacheInfo>();
                 foreach (var item in Caches) {
@@ -177,7 +227,9 @@ namespace LiteDbFlex {
                 }
             }
         }
+        #endregion
 
+        #region cacheinfo class
         public class CacheInfo {
             public int HashCode { get; set; } = 0;
             public object Data { get; set; } = null;
@@ -189,6 +241,7 @@ namespace LiteDbFlex {
                 this.SetTime = setTime;
             }
         }
+        #endregion
 
     }
 }

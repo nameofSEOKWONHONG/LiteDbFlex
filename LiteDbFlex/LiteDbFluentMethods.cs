@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -13,7 +14,7 @@ namespace LiteDbFlex {
         public static ILiteCollection<T> jGetCollection<T>(this ILiteDatabase liteDatabase, string tableName = null)
             where T : class {
             if(!string.IsNullOrEmpty(tableName)) {
-                return liteDatabase.GetCollection<T>(tableName);    
+                return liteDatabase.GetCollection<T>(tableName);
             }
             return liteDatabase.GetCollection<T>(typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.TableName));
         }
@@ -89,5 +90,11 @@ namespace LiteDbFlex {
             return collection;
         }
         #endregion [litedb]
+
+        #region general extension
+        public static int jToHashCode(this object obj) {
+            return JsonConvert.SerializeObject(obj).GetHashCode();
+        }
+        #endregion
     }
 }

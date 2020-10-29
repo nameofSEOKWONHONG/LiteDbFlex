@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace LiteDbFlex.test {
     public class LiteDbCacheSafeFlexerTest : BaseTestClass {
+        const int MAX_LOOP = 1000;
         [SetUp]
         public void SetUp() {
 
@@ -19,7 +21,7 @@ namespace LiteDbFlex.test {
             };
 
             // 44.3 sec
-            Enumerable.Range(1, 50000).ToList().ForEach(loop => {
+            Enumerable.Range(1, MAX_LOOP).ToList().ForEach(loop => {
                 var result1 = LiteDbSafeFlexer<Customer>.Instance
                 .Value
                 .SetAdditionalDbFileName()
@@ -51,7 +53,7 @@ namespace LiteDbFlex.test {
             };
 
             // 736 ms
-            Enumerable.Range(1, 50000).ToList().ForEach(loop => {
+            Enumerable.Range(1, MAX_LOOP).ToList().ForEach(loop => {
                 var result1 = LiteDbCacheSafeFlexer<Customer, Customer>.Instance
                     .Value
                     .SetRequest(request)
@@ -60,6 +62,8 @@ namespace LiteDbFlex.test {
                         return o.Gets(x => x.Name == r.Name && x.Age == r.Age)
                         .GetResult<IEnumerable<Customer>>();
                     });
+
+                LiteDbCacheSafeFlexer<Customer, Customer>.Instance.Value.ClearCache();
 
                 Assert.Greater(result1.Count(), 0);
 
@@ -71,6 +75,8 @@ namespace LiteDbFlex.test {
                         return o.Gets(x => x.Name == r.Name && x.Age == r.Age)
                         .GetResult<IEnumerable<Customer>>();
                     });
+
+                LiteDbCacheSafeFlexer<Customer, Customer>.Instance.Value.ClearCache();
 
                 Assert.Greater(result2.Count(), 0);
             });

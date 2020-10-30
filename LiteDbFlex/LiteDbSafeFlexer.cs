@@ -33,7 +33,7 @@ namespace LiteDbFlex {
                 try {
                     result = func(liteDbFlexer);
                 } catch {
-                    if (liteDbFlexer.IsTran) {
+                    if (liteDbFlexer.IsBeginTrans) {
                         liteDbFlexer.Rollback();
                     }
                 }
@@ -52,7 +52,7 @@ namespace LiteDbFlex {
                     result = func(liteDbFlexer);
                 }
                 catch {
-                    if(liteDbFlexer.IsTran) {
+                    if(liteDbFlexer.IsBeginTrans) {
                         liteDbFlexer.Rollback();
                     }
                 }

@@ -123,7 +123,7 @@ namespace LiteDbFlex {
                         cache.SetTime = DateTime.Now;
                     }
                 } catch {
-                    if (liteDbFlexer.IsTran) {
+                    if (liteDbFlexer.IsBeginTrans) {
                         liteDbFlexer.Rollback();
                     }
                 }
@@ -162,7 +162,7 @@ namespace LiteDbFlex {
                         cache.SetTime = DateTime.Now;
                     }
                 } catch {
-                    if (liteDbFlexer.IsTran) {
+                    if (liteDbFlexer.IsBeginTrans) {
                         liteDbFlexer.Rollback();
                     }
                 }

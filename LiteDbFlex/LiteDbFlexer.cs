@@ -13,8 +13,8 @@ namespace LiteDbFlex {
         where T : class {
         public ILiteDatabase LiteDatabase { get; private set; }
         public ILiteCollection<T> LiteCollection { get; private set; }
-        public bool IsTran { get; private set; }
-        public bool IsTraned { get; private set; }
+        public bool IsBeginTrans { get; private set; }
+        public bool IsCommitted { get; private set; }
         public object Result { get; private set; }
         public string TableName {get; private set;}
         public string DbFileName { get; private set; }
@@ -33,19 +33,17 @@ namespace LiteDbFlex {
         }
 
         public LiteDbFlexer<T> BeginTrans() {
-            this.IsTran = this.LiteDatabase.BeginTrans();
+            this.IsBeginTrans = this.LiteDatabase.BeginTrans();
             return this;
         }
 
         public LiteDbFlexer<T> Commit() {
-            if(this.IsTran) {
-                this.IsTraned = this.LiteDatabase.Commit();
-            }
+            this.IsCommitted = this.LiteDatabase.Commit();
             return this;
         }
 
         public LiteDbFlexer<T> Rollback() {
-            if(this.IsTran) {
+            if(this.IsBeginTrans) {
                 this.LiteDatabase.Rollback();
             }
             return this;
@@ -91,36 +89,43 @@ namespace LiteDbFlex {
 
         public LiteDbFlexer<T> Insert(T entity) {
             this.Result = this.LiteCollection.Insert(entity);
+            Commited();
             return this;
         }
 
         public LiteDbFlexer<T> Insert(IEnumerable<T> entities, int batchSize = 5000) {
             this.Result = this.LiteCollection.InsertBulk(entities, batchSize);
+            Commited();
             return this;
         }
 
         public LiteDbFlexer<T> Update(T entity) {
             this.Result = this.LiteCollection.Update(entity);
+            Commited();
             return this;
         }
 
         public LiteDbFlexer<T> Update(Expression<Func<T, T>> expression, Expression<Func<T, bool>> predicate) {
             this.Result = this.LiteCollection.UpdateMany(expression, predicate);
+            Commited();
             return this;
         }
 
         public LiteDbFlexer<T> Delete(int id) {
             this.Result = this.LiteCollection.Delete(id);
+            Commited();
             return this;
         }
 
         public LiteDbFlexer<T> Delete(Expression<Func<T, bool>> predicate) {
             this.Result = this.LiteCollection.DeleteMany(predicate);
+            Commited();
             return this;
         }
 
         public LiteDbFlexer<T> Delete() {
             this.Result = this.LiteCollection.DeleteAll();
+            Commited();
             return this;
         }
 
@@ -128,11 +133,13 @@ namespace LiteDbFlex {
             return (TResult)this.Result;
         }
 
-        public void Dispose() {
-            if(this.IsTran && !this.IsTraned) {
+        private void Commited() {
+            if (this.IsBeginTrans && !this.IsCommitted) {
                 this.LiteDatabase.Commit();
             }
+        }
 
+        public void Dispose() {
             if(this.LiteDatabase != null) {
                 this.LiteDatabase.Dispose();
             }

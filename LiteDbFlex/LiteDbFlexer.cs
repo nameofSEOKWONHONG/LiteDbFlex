@@ -5,7 +5,9 @@ using System.Linq;
 using System.Linq.Expressions;
 
 namespace LiteDbFlex {
-    public interface ILiteDbFlexer : IDisposable { }
+    public interface ILiteDbFlexer : IDisposable {
+        void DropCollection();
+    }
     /// <summary>
     /// litedb flexer (implement chain method and helper class)
     /// </summary>
@@ -59,6 +61,10 @@ namespace LiteDbFlex {
         public LiteDbFlexer<T> DropIndex(string name) {
             this.LiteCollection.DropIndex(name);
             return this;
+        }
+
+        public void DropCollection() {
+            this.LiteDatabase.DropCollection(this.TableName);
         }
 
         public LiteDbFlexer<T> Gets() {

@@ -34,6 +34,12 @@ namespace LiteDbFlex {
             return (LiteDbFlexer<TEntity>)exists.LiteDbFlexer;
         }
 
+        public void DropCollection() {
+            _liteDbFlexManageInfos.ForEach(item => {
+                item.LiteDbFlexer.DropCollection();
+            });
+        }
+
         public void Dispose() {
             _liteDbFlexManageInfos.ForEach(item => {
                 item.LiteDbFlexer.Dispose();

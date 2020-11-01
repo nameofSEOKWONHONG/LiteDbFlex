@@ -17,7 +17,7 @@ namespace LiteDbFlex {
 
         List<LiteDbFlexManageInfo> _liteDbFlexManageInfos = new List<LiteDbFlexManageInfo>();
 
-        public LiteDbFlexer<TEntity> Create<TEntity>(string additionalDbFileName = "") 
+        public LiteDbFlexer<TEntity> Create<TEntity>(string additionalDbFileName = "")
             where TEntity : class {
             var dbFileName = typeof(TEntity).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.FileName);
             if (!string.IsNullOrEmpty(additionalDbFileName)) {

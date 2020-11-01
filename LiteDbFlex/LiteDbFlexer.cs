@@ -5,11 +5,12 @@ using System.Linq;
 using System.Linq.Expressions;
 
 namespace LiteDbFlex {
+    public interface ILiteDbFlexer : IDisposable { }
     /// <summary>
     /// litedb flexer (implement chain method and helper class)
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class LiteDbFlexer<T> : IDisposable
+    public class LiteDbFlexer<T> : ILiteDbFlexer
         where T : class {
         public ILiteDatabase LiteDatabase { get; private set; }
         public ILiteCollection<T> LiteCollection { get; private set; }

@@ -4,6 +4,10 @@ using System.Text;
 
 namespace LiteDbFlex.test {
     [LiteDbTable("MyData.db", "customers")]
+    [LiteDbIndex(
+        new[] { "Name" }, 
+        new[] { true }
+    )]
     public class Customer {
         public int Id { get; set; }
         public string Name { get; set; }

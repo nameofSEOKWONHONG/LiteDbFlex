@@ -12,16 +12,15 @@ namespace LiteDbFlex {
     /// <summary>
     /// litedbsafeflexer instance and result data cache
     /// </summary>
-    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TCache"></typeparam>
     /// <typeparam name="TRequest"></typeparam>
-    public sealed class LiteDbCacheFlexer<TEntity> : IDisposable
-        where TEntity : class {
+    public sealed class LiteDbCacheFlexer : IDisposable {
         #region property
         /// <summary>
         /// lazy instance of LiteDbCacheSafeFlexer
         /// </summary>
-        public static Lazy<LiteDbCacheFlexer<TEntity>> Instance = new Lazy<LiteDbCacheFlexer<TEntity>>(() => {
-            return new LiteDbCacheFlexer<TEntity>();
+        public static Lazy<LiteDbCacheFlexer> Instance = new Lazy<LiteDbCacheFlexer>(() => {
+            return new LiteDbCacheFlexer();
         });
         #endregion
 
@@ -43,19 +42,32 @@ namespace LiteDbFlex {
         #endregion
 
         #region methods
-        public LiteDbCacheFlexer<TEntity> SetAdditionalDbFileName(string additionalDbFileName = "") {
+        public LiteDbCacheFlexer SetAdditionalDbFileName(string additionalDbFileName = "") {
             this._additionalDbFileName = additionalDbFileName;
             return this;
         }
 
-        public void SetCache(CacheInfo<TEntity> cacheInfo) {
+        /// <summary>
+        /// set cache (if exists same cache name, after delete exists cache, insert new cahe.)
+        /// </summary>
+        /// <param name="func"></param>
+        public void SetCache<TEntity>(Func<CacheInfo<TEntity>> func)
+            where TEntity : class{
+            var cacheInfo = func();
             var cache = LiteDbFlexerManager.Instance.Value
                 .Create<CacheInfo<TEntity>>(this._additionalDbFileName)
                 .Get(x => x.CacheName == cacheInfo.CacheName)
                 .GetResult<CacheInfo<TEntity>>();
 
             if(cache != null) {
-                if ((DateTime.Now - cache.SetTime).TotalSeconds > cache.Interval) {
+                if(cache.SetTime.HasValue) {
+                    if ((DateTime.Now - cache.SetTime.Value).TotalSeconds > cache.Interval) {
+                        LiteDbFlexerManager.Instance.Value
+                            .Create<CacheInfo<TEntity>>(this._additionalDbFileName)
+                            .Delete(cache.Id);
+                    }
+                }
+                else {
                     LiteDbFlexerManager.Instance.Value
                         .Create<CacheInfo<TEntity>>(this._additionalDbFileName)
                         .Delete(cache.Id);
@@ -67,19 +79,21 @@ namespace LiteDbFlex {
                 .Insert(cacheInfo);
         }
 
-        public CacheInfo<TEntity> GetCache(string cacheName, CacheInfo<TEntity> cacheInfo = null) {
+        public CacheInfo<TEntity> GetCache<TEntity>(string cacheName)
+            where TEntity : class {
             var cache = LiteDbFlexerManager.Instance.Value.Create<CacheInfo<TEntity>>(this._additionalDbFileName).Get(x => x.CacheName == cacheName).GetResult<CacheInfo<TEntity>>();
             if (cache != null) {
-                if ((DateTime.Now - cache.SetTime).TotalSeconds > cache.Interval) {
-                    LiteDbFlexerManager.Instance.Value
-                        .Create<CacheInfo<TEntity>>(this._additionalDbFileName)
-                        .Delete(cache.Id);
-                } else {
-                    return cache;
+                if(cache.SetTime.HasValue) {
+                    if ((DateTime.Now - cache.SetTime.Value).TotalSeconds > cache.Interval) {
+                        LiteDbFlexerManager.Instance.Value
+                            .Create<CacheInfo<TEntity>>(this._additionalDbFileName)
+                            .Delete(cache.Id);
+                        cache.EnumCacheState = ENUM_CACHE_STATE.DELETED;
+                    }
                 }
             }
 
-            return null;
+            return cache;
         }
 
         private bool IsDiff(object diff1, object diff2) {
@@ -92,32 +106,59 @@ namespace LiteDbFlex {
 
         public void DropCollection() {
             lock (_lock) {
-                LiteDbFlexerManager.Instance.Value.Create<TEntity>(this._additionalDbFileName).DropCollection();
+                LiteDbFlexerManager.Instance.Value.DropCollection();
+            }
+        }
+
+        public void DropCollection<TEntity>() {
+            lock(_lock) {
+                LiteDbFlexerManager.Instance.Value.Create<CacheInfo<TEntity>>(this._additionalDbFileName).DropCollection();
             }
         }
 
         public async Task DropCollectionAsync() {
             using(await _mutex.LockAsync()) {
-                LiteDbFlexerManager.Instance.Value.Create<TEntity>(this._additionalDbFileName).DropCollection();
+                LiteDbFlexerManager.Instance.Value.DropCollection();
             }
         }
 
         public void Dispose() {
-
+            lock(_lock) {
+                LiteDbFlexerManager.Instance.Value.Dispose();
+            }
         }
         #endregion
     }
 
     #region cacheinfo class
     [LiteDbTable("cache.db", "caches")]
-    [LiteDbIndex(new[] { "CacheName", "HashCode" })]
+    [LiteDbIndex(new[] { "CacheName" })]
     public class CacheInfo<TEntity> {
+        /// <summary>
+        /// Id (litedb id)
+        /// </summary>
         public int Id { get; set; }
+        /// <summary>
+        /// CacheName (Key)
+        /// </summary>
         public string CacheName { get; set; }
-        public int HashCode { get; set; }
+        /// <summary>
+        /// Data (Value)
+        /// </summary>
         public TEntity Data { get; set; }
-        public DateTime SetTime { get; set; }
+        /// <summary>
+        /// SetTime (default DateTime.Now)
+        /// if this property is null, never delete.
+        /// </summary>
+        public DateTime? SetTime { get; set; }
+        /// <summary>
+        /// Interval (delete interval)
+        /// </summary>
         public int Interval { get; set; }
+        /// <summary>
+        /// Cache State (normal, deleted)
+        /// </summary>
+        public ENUM_CACHE_STATE EnumCacheState { get; set; } = ENUM_CACHE_STATE.NORMAL;
 
         public CacheInfo() { }
 
@@ -126,7 +167,13 @@ namespace LiteDbFlex {
             this.Data = data;
             this.SetTime = setTime;
             this.Interval = interval;
+            this.EnumCacheState = ENUM_CACHE_STATE.NORMAL;
         }
+    }
+
+    public enum ENUM_CACHE_STATE {
+        NORMAL,
+        DELETED
     }
     #endregion
 }

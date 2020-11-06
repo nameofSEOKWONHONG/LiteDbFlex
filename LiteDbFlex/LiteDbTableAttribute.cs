@@ -20,7 +20,7 @@ namespace LiteDbFlex {
 
     [AttributeUsage(AttributeTargets.All)]
     public class LiteDbIndexAttribute : Attribute {
-        private readonly Dictionary<string, bool> Indexes = new Dictionary<string, bool>();
+        public readonly Dictionary<string, bool> Indexes = new Dictionary<string, bool>();
 
         public LiteDbIndexAttribute(string[] indexNames, bool[] indexUniques = null) {
             for (var i = 0; i < indexNames.Length; i++) {

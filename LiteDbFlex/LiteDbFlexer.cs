@@ -35,6 +35,12 @@ namespace LiteDbFlex {
 
             LiteDatabase = LiteDbResolver.Resolve<T>(additionalDbFileName);
             LiteCollection = LiteDatabase.GetCollection<T>(TableName);
+
+            var indexes = typeof(T).GetAttributeValue((LiteDbIndexAttribute indexAttribute) => indexAttribute.Indexes);
+            foreach (var index in indexes)
+            {
+                LiteCollection.EnsureIndex(index.Key, index.Value);
+            }
         }
 
         public void DropCollection() {

@@ -29,7 +29,7 @@ namespace LiteDbFlex {
         }
 
         public static ILiteDatabase jBeginTrans(this ILiteDatabase liteDatabase) {
-            if (liteDatabase.BeginTrans() == false) throw new Exception("litedb transaction failed on begintrans");
+            if (liteDatabase.BeginTrans() == false) throw new Exception("current thread already in a transaction.");
             return liteDatabase;
         }
 
@@ -76,21 +76,19 @@ namespace LiteDbFlex {
 
         public static bool jCommit(this ILiteDatabase liteDatabase) {
             var result = liteDatabase.Commit();
-            if (result == false) throw new Exception("litedb transaction failed on commit");
             return result;
         }
 
         public static bool jRollback(this ILiteDatabase liteDatabase) {
             var result = liteDatabase.Rollback();
-            if (result == false) throw new Exception("litedb transaction failed on rollback");
             return result;
         }
 
-        public static ILiteCollection<T> jEnsureIndex<T, K>(this ILiteCollection<T> collection,
-            Expression<Func<T, K>> expression, bool isUnique = true) {
-            if (collection.EnsureIndex(expression, isUnique)) throw new Exception("not ensure index");
-
-            return collection;
+        public static ILiteCollection<T> jEnsureIndex<T, K>(this ILiteCollection<T> liteCollection,
+            Expression<Func<T, K>> expression, bool isUnique = true)
+        {
+            liteCollection.EnsureIndex(expression, isUnique);
+            return liteCollection;
         }
 
         #endregion [litedb - chaining methods]

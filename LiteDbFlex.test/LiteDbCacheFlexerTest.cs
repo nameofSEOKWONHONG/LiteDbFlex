@@ -56,7 +56,7 @@ namespace LiteDbFlex.test {
 
             var customer = LiteDbCacheFlexer.Instance.Value.GetCache<Customer>("CustomerCache");
             Assert.NotNull(customer);
-            Assert.AreEqual(customer.EnumCacheState, ENUM_CACHE_STATE.DELETED);
+            Assert.AreEqual(customer.EnumCacheState, EnumCacheState.Deleted);
 
 
             LiteDbCacheFlexer.Instance.Value.Dispose();
@@ -83,7 +83,7 @@ namespace LiteDbFlex.test {
 
             var customer = LiteDbCacheFlexer.Instance.Value.GetCache<Customer>("CustomerCache");
             Assert.NotNull(customer);
-            Assert.AreEqual(customer.EnumCacheState, ENUM_CACHE_STATE.NORMAL);
+            Assert.AreEqual(customer.EnumCacheState, EnumCacheState.Normal);
 
 
             LiteDbCacheFlexer.Instance.Value.Dispose();

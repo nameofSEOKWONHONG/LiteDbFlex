@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 namespace LiteDbFlex {
 
     /// <summary>
-    ///     litedb instance safe class
+    /// litedb instance safe class
+    /// use locking for single instance
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     public sealed class LiteDbSafeFlexer<TEntity>

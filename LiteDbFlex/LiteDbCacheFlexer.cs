@@ -6,6 +6,7 @@ namespace LiteDbFlex {
     /// <summary>
     ///     litedbsafeflexer instance and result data cache
     /// </summary>
+    [Obsolete("don't use this", true)]
     public sealed class LiteDbCacheFlexer : IDisposable {
 
         #region property

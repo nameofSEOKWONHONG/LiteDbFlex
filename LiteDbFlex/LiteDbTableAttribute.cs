@@ -1,32 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace LiteDbFlex {
+
     /// <summary>
-    /// litedb entity extension attribute
+    ///     litedb entity extension attribute
     /// </summary>
-    [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
-    public class LiteDbTableAttribute : Attribute  {
-        public string FileName { get; private set; }
-        public string TableName { get; private set; }
+    [AttributeUsage(AttributeTargets.All)]
+    public class LiteDbTableAttribute : Attribute {
+
         public LiteDbTableAttribute(string fileName, string tableName) {
-            this.FileName = fileName;
-            this.TableName = tableName;
+            FileName = fileName;
+            TableName = tableName;
         }
+
+        public string FileName { get; }
+        public string TableName { get; }
     }
 
-    [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.All)]
     public class LiteDbIndexAttribute : Attribute {
-        public Dictionary<string, bool> Indexes = new Dictionary<string, bool>();
+        public readonly Dictionary<string, bool> Indexes = new Dictionary<string, bool>();
+
         public LiteDbIndexAttribute(string[] indexNames, bool[] indexUniques = null) {
-            for(var i=0; i<indexNames.Length; i++) {
+            for (var i = 0; i < indexNames.Length; i++) {
                 var unique = true;
-                if (indexUniques != null) {
-                    unique = indexUniques[i];
-                }
+                if (indexUniques != null) unique = indexUniques[i];
                 Indexes.Add(indexNames[i], unique);
             }
         }

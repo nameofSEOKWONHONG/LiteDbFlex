@@ -49,9 +49,7 @@ namespace LiteDbFlex.test
                 };
                 var result = LiteDbSafeFlexer<Order>
                     .Instance.Value
-                    .Execute(o => {
-                        return o.BeginTrans().Insert(order).Commit().GetResult<BsonValue>();
-                    });
+                    .Execute(o => o.BeginTrans().Insert(order).Commit().GetResult<BsonValue>());
                 Assert.Greater((int)result, 0);
             }
         }

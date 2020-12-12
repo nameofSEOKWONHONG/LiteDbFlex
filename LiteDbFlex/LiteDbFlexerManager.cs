@@ -41,7 +41,7 @@ namespace LiteDbFlex {
             _liteDbFlexManageInfos.Clear();
         }
 
-        public class LiteDbFlexManageInfo {
+        internal class LiteDbFlexManageInfo {
             public string LiteDbName { get; set; }
             public ILiteDbFlexer LiteDbFlexer { get; set; }
         }

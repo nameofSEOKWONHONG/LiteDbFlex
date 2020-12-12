@@ -26,20 +26,31 @@ namespace LiteDbFlex {
         public string DbFileName { get; }
         public string FullDbFileName { get; }
 
+        private static HashSet<LiteDbFlexer<T>> _liteDbFlexers = new HashSet<LiteDbFlexer<T>>();
+
         public LiteDbFlexer(string additionalDbFileName = "") {
             FullDbFileName = DbFileName =
                 typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.FileName);
+
             TableName = typeof(T).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.TableName);
+            if (!string.IsNullOrEmpty(additionalDbFileName))
+                FullDbFileName = $"{additionalDbFileName}_{DbFileName}";
 
-            if (!string.IsNullOrEmpty(additionalDbFileName)) FullDbFileName = $"{additionalDbFileName}_{DbFileName}";
+            var exists = _liteDbFlexers.Where(m => m.FullDbFileName == FullDbFileName).FirstOrDefault();
+            if(exists == null) {
+                LiteDatabase = LiteDbResolver.Resolve<T>(additionalDbFileName);
+                LiteCollection = LiteDatabase.GetCollection<T>(TableName);
 
-            LiteDatabase = LiteDbResolver.Resolve<T>(additionalDbFileName);
-            LiteCollection = LiteDatabase.GetCollection<T>(TableName);
+                var indexes = typeof(T).GetAttributeValue((LiteDbTableAttribute indexAttribute) => indexAttribute.Indexes);
+                foreach (var index in indexes) {
+                    LiteCollection.EnsureIndex(index.Key, index.Value);
+                }
 
-            var indexes = typeof(T).GetAttributeValue((LiteDbIndexAttribute indexAttribute) => indexAttribute.Indexes);
-            foreach (var index in indexes)
-            {
-                LiteCollection.EnsureIndex(index.Key, index.Value);
+                _liteDbFlexers.Add(this);
+            }
+            else {
+                LiteDatabase = exists.LiteDatabase;
+                LiteCollection = exists.LiteCollection;
             }
         }
 

@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace LiteDbFlex.test {
-    [LiteDbTable("MyData.db", "customers")]
-    [LiteDbIndex(
-        new[] { "Name" }, 
-        new[] { true }
-    )]
+    [LiteDbTable("MyData.db", "customers", new[] { "Name" }, new[] { true })]
     public class Customer {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -25,5 +21,5 @@ namespace LiteDbFlex.test {
         public decimal TotalPrice {get {return this.Price * this.Amt;}}
         public Customer Customer {get;set;}
     }
-     
+
 }

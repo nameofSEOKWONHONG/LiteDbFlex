@@ -1,11 +1,13 @@
 ﻿using LiteDB;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LiteDbFlex {
 
     /// <summary>
     ///     create litedb instance
     /// </summary>
-    public class LiteDbResolver {
+    internal class LiteDbResolver {
 
         private LiteDbResolver() {
         }
@@ -14,6 +16,7 @@ namespace LiteDbFlex {
             where TEntity : class {
             var fileConnection =
                 typeof(TEntity).GetAttributeValue((LiteDbTableAttribute tableAttribute) => tableAttribute.FileName);
+
             if (!string.IsNullOrEmpty(fileConnection)) {
                 if (!string.IsNullOrEmpty(additionalDbFileName))
                     return new LiteDatabase($"{additionalDbFileName}_{fileConnection}");
